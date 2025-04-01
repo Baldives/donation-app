@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+
+// Load Stripe outside the component to avoid re-initialization
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 export default function DonationForm({ causes }) {
   const [name, setName] = useState('');
@@ -7,27 +11,39 @@ export default function DonationForm({ causes }) {
 
   const handleCauseChange = (causeId) => {
     if (selectedCauses.includes(causeId)) {
-      // Remove cause if already selected
       setSelectedCauses(selectedCauses.filter((id) => id !== causeId));
     } else if (selectedCauses.length < 5) {
-      // Add cause if under 5 selected
       setSelectedCauses([...selectedCauses, causeId]);
     } else {
       alert('You can only select up to 5 causes!');
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (selectedCauses.length === 0) {
       alert('Please select at least one cause!');
       return;
     }
-    const selectedNames = causes
+
+    const stripe = await stripePromise;
+    const causeNames = causes
       .filter((cause) => selectedCauses.includes(cause.id))
-      .map((cause) => cause.name)
-      .join(', ');
-    alert(`Thank you, ${name}! Your $10 donation for ${selectedNames} will be processed using ${email}.`);
+      .map((cause) => cause.name);
+
+    const response = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ selectedCauses: causeNames }),
+    });
+
+    const { sessionId } = await response.json();
+
+    if (sessionId) {
+      await stripe.redirectToCheckout({ sessionId });
+    } else {
+      alert('Error creating checkout session.');
+    }
   };
 
   return (
