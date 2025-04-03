@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 
-// Load Stripe outside the component to avoid re-initialization
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 export default function DonationForm({ causes }) {
@@ -27,6 +26,11 @@ export default function DonationForm({ causes }) {
     }
 
     const stripe = await stripePromise;
+    if (!stripe) {
+      alert('Payment system unavailable.');
+      return;
+    }
+
     const causeNames = causes
       .filter((cause) => selectedCauses.includes(cause.id))
       .map((cause) => cause.name);
@@ -34,11 +38,15 @@ export default function DonationForm({ causes }) {
     const response = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ selectedCauses: causeNames }),
+      body: JSON.stringify({ selectedCauses: causeNames, email, name }), // Add email and name
     });
 
-    const { sessionId } = await response.json();
+    if (!response.ok) {
+      alert('Failed to initiate payment.');
+      return;
+    }
 
+    const { sessionId } = await response.json();
     if (sessionId) {
       await stripe.redirectToCheckout({ sessionId });
     } else {
