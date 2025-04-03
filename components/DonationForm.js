@@ -38,7 +38,7 @@ export default function DonationForm({ causes }) {
     const response = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ selectedCauses: causeNames, email, name }), // Add email and name
+      body: JSON.stringify({ selectedCauses: causeNames, email, name }),
     });
 
     if (!response.ok) {

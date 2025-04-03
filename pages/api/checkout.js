@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       mode: 'payment',
       success_url: `${req.headers.origin}/success`,
       cancel_url: `${req.headers.origin}/`,
-      metadata: { email, name, selectedCauses: selectedCauses.join(', ') }, // Store data
+      metadata: { email, name, selectedCauses: selectedCauses.join(', ') },
     });
 
     res.status(200).json({ sessionId: session.id });
