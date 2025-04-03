@@ -8,15 +8,15 @@ try {
     throw new Error('RESEND_API_KEY is not set in environment variables');
   }
   resend = new Resend(process.env.RESEND_API_KEY);
-  console.log('Resend initialized successfully');
+  //console.log('Resend initialized successfully');
 } catch (error) {
   console.error('Failed to initialize Resend:', error.message);
 }
 
 // Buffer the raw request body
 export default async function handler(req, res) {
-  console.log('Webhook received:', req.method);
-  console.log('Headers:', req.headers);
+  //console.log('Webhook received:', req.method);
+  //console.log('Headers:', req.headers);
 
   if (req.method !== 'POST') {
     console.log('Method not allowed:', req.method);
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     chunks.push(chunk);
   }
   const rawBody = Buffer.concat(chunks).toString('utf8');
-  console.log('Raw body:', rawBody);
+  //console.log('Raw body:', rawBody);
 
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
