@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   const sig = req.headers['stripe-signature'];
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET; // Add this later
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   let event;
   try {
@@ -35,6 +35,6 @@ export default async function handler(req, res) {
 
 export const config = {
   api: {
-    bodyParser: false, // Stripe needs raw body
+    bodyParser: false, // Required for Stripe webhooks
   },
 };
