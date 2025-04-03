@@ -4,6 +4,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
   console.log('Webhook received:', req.method);
+  console.log('Headers:', req.headers);
   if (req.method !== 'POST') {
     console.log('Method not allowed:', req.method);
     return res.status(405).json({ message: 'Method Not Allowed' });
@@ -49,6 +50,6 @@ export default async function handler(req, res) {
 
 export const config = {
   api: {
-    bodyParser: false, // Required for Stripe webhooks
+    bodyParser: false,
   },
 };
