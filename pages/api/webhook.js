@@ -63,7 +63,12 @@ export default async function handler(req, res) {
         from: 'DonationApp <onboarding@resend.dev>',
         to: email,
         subject: 'Thank You for Your Donation!',
-        text: `Hi ${name},\n\nThank you for your $10 donation to DonationApp! Your support for ${selectedCauses} makes a big difference.\n\nBest,\nThe DonationApp Team`,
+        html: `
+          <h1>Thank You, ${name}!</h1>
+          <p>Your $10 donation to DonationApp means the world to us!</p>
+          <p><strong>Supporting:</strong> ${selectedCauses}</p>
+          <p>Best,<br>The DonationApp Team</p>
+        `,
       });
       console.log('Email sent to:', email);
     } catch (emailErr) {
