@@ -1,17 +1,41 @@
-import Head from 'next/head';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
 export default function Success() {
+  const router = useRouter();
+  const { session_id } = router.query;
+  const [donationDetails, setDonationDetails] = useState(null);
+
+  useEffect(() => {
+    if (session_id) {
+      fetch(`/api/get-session?session_id=${session_id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setDonationDetails(data);
+        })
+        .catch((err) => console.error('Error fetching session:', err));
+    }
+  }, [session_id]);
+
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10">
-      <Head>
-        <title>Thank You - DonationApp</title>
-      </Head>
-      <h1 className="text-4xl font-bold mb-8 text-green-600">Thank You!</h1>
-      <p className="text-xl text-gray-700">Your $10 donation has been successfully processed.</p>
-      <p className="text-lg text-gray-600 mt-4">We’ll email you a confirmation soon.</p>
-      <a href="/" className="mt-6 bg-blue-500 text-white p-3 rounded hover:bg-blue-600">
-        Back to Home
-      </a>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h1 className="text-2xl font-bold text-green-600 mb-4">Thank You for Your Donation!</h1>
+        {donationDetails ? (
+          <div>
+            <p><strong>Name:</strong> {donationDetails.name}</p>
+            <p><strong>Email:</strong> {donationDetails.email}</p>
+            <p><strong>Amount:</strong> ${(donationDetails.amount / 100).toFixed(2)}</p>
+            <p><strong>Causes:</strong> {donationDetails.selectedCauses}</p>
+            <p><strong>Date:</strong> {new Date(donationDetails.created * 1000).toLocaleString()}</p>
+          </div>
+        ) : (
+          <p>Loading donation details...</p>
+        )}
+        <a href="/" className="mt-4 inline-block text-blue-500 hover:underline">
+          Back to Home
+        </a>
+      </div>
     </div>
   );
 }
