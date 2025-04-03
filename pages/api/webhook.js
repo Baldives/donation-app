@@ -64,23 +64,21 @@ export default async function handler(req, res) {
         to: email,
         subject: 'Thank You for Your Donation!',
         html: `
-          <h1>Thank You, ${name}!</h1>
-          <p>Your $10 donation to DonationApp means the world to us!</p>
-          <p><strong>Supporting:</strong> ${selectedCauses}</p>
-          <p>Best,<br>The DonationApp Team</p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h1 style="color: #2c3e50;">Thank You, ${name}!</h1>
+            <p style="font-size: 16px; color: #34495e;">
+              Your <strong>$10 donation</strong> to DonationApp means the world to us!
+            </p>
+            <p style="font-size: 16px; color: #34495e;">
+              <strong>Supporting:</strong> ${selectedCauses}
+            </p>
+            <p style="font-size: 16px; color: #34495e;">
+              Want to learn more about our causes? 
+              <a href="https://donationapp.vercel.app/causes" style="color: #3498db; text-decoration: none;">Click here</a>.
+            </p>
+            <p style="font-size: 14px; color: #7f8c8d;">
+              Best,<br>The DonationApp Team
+            </p>
+          </div>
         `,
       });
-      console.log('Email sent to:', email);
-    } catch (emailErr) {
-      console.error('Resend Error:', emailErr.message);
-    }
-  }
-
-  res.status(200).json({ received: true });
-}
-
-export const config = {
-  api: {
-    bodyParser: false, // Disable Next.js body parser
-  },
-};
