@@ -13,20 +13,30 @@ try {
   console.error('Failed to initialize Resend:', error.message);
 }
 
+// Buffer the raw request body
 export default async function handler(req, res) {
   console.log('Webhook received:', req.method);
   console.log('Headers:', req.headers);
+
   if (req.method !== 'POST') {
     console.log('Method not allowed:', req.method);
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
+
+  // Read the raw body
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(chunk);
+  }
+  const rawBody = Buffer.concat(chunks).toString('utf8');
+  console.log('Raw body:', rawBody);
 
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
     console.log('Event constructed:', event.type);
   } catch (err) {
     console.error('Webhook Error:', err.message);
@@ -66,6 +76,6 @@ export default async function handler(req, res) {
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: false, // Disable Next.js body parser
   },
 };
