@@ -1,6 +1,17 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Initialize Resend with error handling
+let resend;
+try {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY is not set in environment variables');
+  }
+  resend = new Resend(process.env.RESEND_API_KEY);
+  console.log('Resend initialized successfully');
+} catch (error) {
+  console.error('Failed to initialize Resend:', error.message);
+}
 
 export default async function handler(req, res) {
   console.log('Webhook received:', req.method);
@@ -29,6 +40,11 @@ export default async function handler(req, res) {
 
     if (!email || !name || !selectedCauses) {
       console.error('Missing metadata:', { email, name, selectedCauses });
+      return res.status(200).json({ received: true });
+    }
+
+    if (!resend) {
+      console.error('Cannot send email: Resend not initialized');
       return res.status(200).json({ received: true });
     }
 
