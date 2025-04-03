@@ -49,6 +49,6 @@ export default async function handler(req, res) {
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: false, // Required for Stripe webhooks
   },
 };
