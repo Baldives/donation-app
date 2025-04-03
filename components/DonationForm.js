@@ -7,6 +7,7 @@ export default function DonationForm({ causes }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [selectedCauses, setSelectedCauses] = useState([]);
+  const [error, setError] = useState(null);
 
   const handleCauseChange = (causeId) => {
     if (selectedCauses.includes(causeId)) {
@@ -20,14 +21,16 @@ export default function DonationForm({ causes }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+
     if (selectedCauses.length === 0) {
-      alert('Please select at least one cause!');
+      setError('Please select at least one cause!');
       return;
     }
 
     const stripe = await stripePromise;
     if (!stripe) {
-      alert('Payment system unavailable.');
+      setError('Payment system unavailable.');
       return;
     }
 
@@ -42,20 +45,29 @@ export default function DonationForm({ causes }) {
     });
 
     if (!response.ok) {
-      alert('Failed to initiate payment.');
+      const errorData = await response.json();
+      setError(errorData.error || 'Failed to initiate payment.');
       return;
     }
 
     const { sessionId } = await response.json();
     if (sessionId) {
-      await stripe.redirectToCheckout({ sessionId });
+      const result = await stripe.redirectToCheckout({ sessionId });
+      if (result.error) {
+        setError(result.error.message);
+      }
     } else {
-      alert('Error creating checkout session.');
+      setError('Error creating checkout session.');
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg">
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+          {error}
+        </div>
+      )}
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2">Name</label>
         <input

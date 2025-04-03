@@ -13,7 +13,7 @@ export default function Success() {
         .then((data) => {
           setDonationDetails(data);
         })
-        .catch((err) => console.error('Error fetching session:', err));
+        .then((err) => console.error('Error fetching session:', err));
     }
   }, [session_id]);
 
